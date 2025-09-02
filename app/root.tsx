@@ -21,7 +21,18 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
 ];
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Web Developer, Canada" },
+    { name: "description", content: "Custom Website Development" },
+  ];
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,7 +44,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <main className="max-w-7xl mx-auto px-6 my-8">
+          {children}
+        </main>
         <ScrollRestoration />
         <Scripts />
       </body>
