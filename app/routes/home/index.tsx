@@ -1,4 +1,7 @@
 import type { Route } from "./+types/index";
+import FeaturedProjects from "~/components/FeaturedProjects";
+import type { Project } from "~/types";
+import AboutPreview from "~/components/AboutPreview";
 
 
 export function meta({ }: Route.MetaArgs) {
@@ -8,8 +11,20 @@ export function meta({ }: Route.MetaArgs) {
     ];
 }
 
+export const loader = async ({ request }: Route.LoaderArgs): Promise<{ projects: Project[] }> => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/projects`);
+    const data = await res.json();
+    return { projects: data };
+};
 
-export default function Home() {
-    console.log("Home test")
-    return <>Welcome to the Home Page</>;
+const Home = ({ loaderData }: Route.ComponentProps) => {
+    const { projects } = loaderData as { projects: Project[] };
+
+    return <>
+
+        <FeaturedProjects projects={projects} count={projects.length - 5} />
+        <AboutPreview />
+    </>;
 }
+
+export default Home;
