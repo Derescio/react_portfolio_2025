@@ -2,7 +2,7 @@
 // Import route types for loader and component props
 import type { Route } from "./+types/index";
 // Import the PostMeta type (single post meta object)
-import type { PostMeta } from "~/types";
+import type { PostMeta, StrapiPost, StrapiResponse } from "~/types";
 // Import UI components
 import PostCard from "~/components/PostCard";
 import { useState } from "react";
@@ -13,14 +13,34 @@ import PostFilter from "~/components/PostFilter";
 // Loader function to fetch blog post metadata from a static JSON file
 export async function loader({ request }: Route.LoaderArgs): Promise<{ posts: PostMeta[] }> {
     try {
+        // Version 1
         // Construct the URL for the posts-meta.json file relative to the current request
-        const url = new URL('/posts-meta.json', request.url);
+        // const url = new URL('/posts-meta.json', request.url);
         // Fetch the JSON file containing post metadata
-        const response = await fetch(url.href);
-        const data = await response.json();
+        // const response = await fetch(url.href);
+        // const data = await response.json();
         // Sort posts by date (newest first)
-        data.sort((a: PostMeta, b: PostMeta) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        return { posts: data };
+        // data.sort((a: PostMeta, b: PostMeta) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        // return { posts: data };
+
+        // Version 2 - Fetching from Strapi CMS
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/posts?populate=*&sort=date:desc`);
+        const json: StrapiResponse<StrapiPost> = await res.json();
+        const posts: PostMeta[] = (json.data ?? []).map((item) => ({
+
+            id: String(item.id),
+            title: item.title,
+            documentId: item.documentId,
+            slug: item.slug,
+            excerpt: item.excerpt,
+            date: item.date,
+            image: item.image?.url ? `${item.image.url}` : '/images/no-image.png',
+            body: item.body
+
+        }))
+        // console.log(posts)
+        return { posts }
+
     } catch (error) {
         // Log and throw an error if fetching fails
         console.error("Error fetching blog posts:", error);
@@ -67,7 +87,7 @@ const BlogPage = ({ loaderData }: Route.ComponentProps) => {
                     <p className="text-gray-500">No posts found.</p>
                 )}
                 {filteredPosts.map((post) => (
-                    <PostCard key={post.slug} post={post} />
+                    <PostCard key={post.id} post={post} />
                 ))}
             </div>
             {/* Pagination controls if more than one page */}
