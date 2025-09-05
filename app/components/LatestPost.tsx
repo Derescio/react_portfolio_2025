@@ -1,4 +1,4 @@
-import React from 'react'
+
 import type { PostMeta } from '~/types'
 
 const LatestPost = ({ posts, limit }: { posts: PostMeta[], limit: number }) => {
